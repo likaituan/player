@@ -1,0 +1,15 @@
+<div class="home">
+	<audio controls="controls" autoplay="true">您的浏览器不支持 audio 标签。</audio>
+	<div data-part="playerPart">
+		<% var current=this.current; %>
+		{if current.song}
+			<p>{current.singer} - {current.song}</p>
+		{/if}
+	</div>
+
+	<ul>
+		{foreach src=this.list.data}
+		<li data-event="listen:{i}"><a href="javascript:void(0);">{item.singer} - {item.song}</a></li>
+		{/foreach}
+	</ul>
+</div>
