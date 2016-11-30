@@ -12,6 +12,7 @@ var app = require("sys.app");
 
 app.config({
 	js: "/js/",
+	css: "/css/",
 	tp: "/templates/"
 });
 

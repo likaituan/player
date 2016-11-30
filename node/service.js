@@ -2,15 +2,19 @@
  * Created by likaituan on 16/11/29.
  */
 
-exports.getMp3List = function (params) {
+var fs = require("fs");
+
+exports.getMp3List = function(){
     var dir = "/data/audio/mp3";
-    return require("fs").readdirSync(dir).map(x=>{
-        var xx = x.split(".");
-        var ti = xx[0].split(" - ");
+    return fs.readdirSync(dir).filter(x=>x.endsWith(".mp3")).map(x=>{
+        /^(.+?)\s*\-\s*(.+?)\./.test(x);
+        var item = fs.statSync(`${dir}/${x}`);
         return {
-            singer: ti[0],
-            song: ti[1],
-            mp3: `/mp3/${x}`
+            singer: RegExp.$1,
+            song: RegExp.$2,
+            mp3: `/mp3/${x}`,
+            addTime: item.birthtime,
+            size: item.size
         }
-    });
+    }).sort((a,b)=>a.addTime-b.addTime);
 };

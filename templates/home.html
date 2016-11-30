@@ -1,15 +1,27 @@
 <div class="home">
-	<audio controls="controls" autoplay="true">您的浏览器不支持 audio 标签。</audio>
-	<div data-part="playerPart">
-		<% var current=this.current; %>
-		{if current.song}
-			<p>{current.singer} - {current.song}</p>
-		{/if}
-	</div>
+	<audio controls="controls"></audio>
 
-	<ul>
+	<ul data-part="listPart">
 		{foreach src=this.list.data}
-		<li data-event="listen:{i}"><a href="javascript:void(0);">{item.singer} - {item.song}</a></li>
+		{if this.playIndex==i}
+		<li data-event="play:{i}" style="color:red">
+			{else}
+		<li data-event="play:{i}">
+			{/if}
+			<a href="javascript:void(0);">{sn}、{item.singer} - {item.song}</a>
+			{if this.totalCount>1}
+				<img class="home-arrow" src="images/arrow-up.png" data-event="goRise:{i}" />
+				<img class="home-arrow" src="images/arrow-down.png" data-event="goDown:{i}" />
+			{/if}
+		</li>
 		{/foreach}
+	</ul>
+
+	<ul class="home-buttons" data-part="controlPart">
+		{if this.totalCount>1}
+		<li><button data-event="goPrev">goPrev</button></li>
+		<li><button data-event="goNext">goNext</button></li>
+		{/if}
+		<li><button data-event="chkNew">chkNew</button></li>
 	</ul>
 </div>
