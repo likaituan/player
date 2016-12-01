@@ -1,12 +1,18 @@
 seekjs.config({
 	ns: {
-		"util.": "/utils/"
+		util: "/utils/",
+		css: {
+			path: "/css/",
+			type: ".css"
+		}
 	},
 	alias:{
 		ajax: "/utils/ajax.js"
 	}
 });
 
+require("css.tag");
+require("css.class");
 
 var app = require("sys.app");
 

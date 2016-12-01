@@ -1,6 +1,5 @@
 {
   "dependencies": {
-    "cheerio": "^0.20.0",
     "seekjs": "latest",
     "ifun": "latest"
   }

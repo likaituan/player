@@ -19,6 +19,8 @@ exports.onRender = function(){
     exports.audio = exports.ui.querySelector("audio");
     exports.setAudio();
     exports.list.data.length>0 && exports.play(0);
+
+    this.usePlugin("seekjs-plugin-lyrics");
 };
 
 exports.setAudio = function(){

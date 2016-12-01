@@ -1,13 +1,41 @@
-.home-buttons{
-    width: 80%;
-}
-
-.home-buttons li{
-    width: 30%;
-    display: inline-block;
+.home{
+    box-sizing: content-box;
 }
 
 .home-arrow{
     width: 20px;
     height: 20px;
+}
+
+.playlist{
+    width: 100%;
+    max-width: 350px;
+    font-size: 13px;
+}
+
+.playlist-title{
+    text-align: center;
+    background-color: #2C3E50;
+    color: #FCFCFC;
+    height: 20px;
+    line-height: 20px;
+}
+
+.playlist-content{
+    border: 1px #007aff dashed;
+    padding: 20px;
+}
+
+.playlist-content li{
+    list-style: disc;
+}
+
+.playlist-buttons{
+    width: 100%;
+}
+
+.playlist-buttons li{
+    width: 33.333%;
+    float:left;
+    text-align: center;
 }

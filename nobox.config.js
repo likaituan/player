@@ -1,5 +1,5 @@
 module.exports = function(args){
-    return {
+    var config = {
         static: {
             items: [{
                 path: "/mp3/",
@@ -16,4 +16,16 @@ module.exports = function(args){
         },
         port: args.port || 5001
     };
+    
+    if(args.f){
+        config.static.items.unshift({
+            path: "/node_modules/seekjs-plugin-lyrics/",
+            dir: "/github/likaituan/seekjs-plugin-lyrics"
+        },{
+            path: "/node_modules/seekjs/",
+            dir: "/github/seekjs-framework/seekjs"
+        });
+    }
+    
+    return config;
 };
