@@ -14,7 +14,7 @@ module.exports = function(args){
             file: require("./node/service"),
             type: "json"
         },
-        port: args.port || 5001
+        port: args.port || 2006
     };
     
     if(args.f){
