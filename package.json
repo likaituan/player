@@ -1,6 +1,8 @@
 {
   "dependencies": {
     "seekjs": "latest",
+    "jquery": "latest",
+    "seekjs-plugin-lyrics": "latest",
     "ifun": "latest"
   }
 }
