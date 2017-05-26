@@ -1,5 +1,6 @@
 seekjs.config({
 	ns: {
+		data: "/data/",
 		util: "/utils/",
 		css: {
 			path: "/css/",
