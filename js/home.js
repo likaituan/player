@@ -20,11 +20,20 @@ exports.onInit = function(done){
 
 // 刷新事件
 exports.onRender = function(){
-    this.audio = this.ui.querySelector("audio");
+    this.audio = new Audio();
+    this.audio.autoplay =  true;
+
     this.setAudio();
     this.list.data.length>0 && this.play(0);
-
     this.usePlugin("seekjs-plugin-lyrics");
+};
+
+exports.doPlay = function (){
+    this.audio.play();
+};
+
+exports.doPause = function (){
+    this.audio.pause();
 };
 
 // 设置Audio
