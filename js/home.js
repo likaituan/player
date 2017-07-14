@@ -5,6 +5,7 @@ exports.init = function() {
     this.playIndex = -1;
     this.lastIndex = -1;
     this.current = {};
+    this.keyword = '';
     this.list = {
         data: []
     };
@@ -123,6 +124,11 @@ exports.upInfo = function(){
 exports.upList = function(){
     //this.lastIndex =
     this.listPart.render();
+};
+
+// 查找歌曲
+exports.searchSong = function () {
+    alert(this.keyword);
 };
 
 exports.init();
