@@ -1,8 +1,8 @@
 {
   "dependencies": {
-    "seekjs": "2.1.8",
+    "ifun": "latest",
     "jquery": "latest",
-    "seekjs-plugin-lyrics": "latest",
-    "ifun": "latest"
+    "seekjs": "github:seekjs/sk2",
+    "seekjs-plugin-lyrics": "latest"
   }
 }
