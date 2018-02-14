@@ -1,0 +1,296 @@
+<style>
+    .playlist {
+
+    }
+
+    .playlist-cate {
+        float: left;
+        width: 160px;
+        height: 100%;
+        overflow: auto;
+        border-right: 1px dashed #ccc;
+    }
+
+    .playlist-cate > ul {
+        margin: 0;
+        padding: 5px;
+    }
+
+    .playlist-list {
+        float: right;
+        width: calc(100% - 200px);
+        height: 100%;
+        overflow-x: hidden;
+        overflow-y: auto;
+        margin: 0;
+        padding: 0;
+    }
+
+    .playlist-title{
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+    }
+
+    .playlist li{
+        list-style: none;
+        height: 40px;
+        line-height: 40px;
+        font-size: 15px;
+    }
+
+    .playlist li > span{
+        cursor: pointer;
+    }
+
+    .playlist-operation {
+        float: right;
+    }
+
+    .playlist-operation > img {
+        margin: 0 5px;
+        width: 20px;
+        height: 20px;
+        cursor: pointer;
+    }
+</style>
+
+<template>
+    <div class="playlist">
+        <div class="playlist-cate">
+            <select data-bind="type" data-event="change > chooseType">
+                <option value="all">全部歌曲</option>
+                <option value="singer">按歌手分类</option>
+                <option value="lang">按语言分类</option>
+                <option value="mood">按心情分类</option>
+            </select>
+            <span>({this.totalCount})</span>
+            <ul>
+                {for (index,item) in this.cateList}
+                <li data-event="chooseCate:{index}">
+                    <span style="{if this.cateIndex == index} color:red; {/if}">
+                        {item.text}({item.count})
+                    </span>
+                </li>
+                {/for}
+            </ul>
+        </div>
+        <ul class="playlist-list">
+            {for (index,item) in this.songList}
+            <li style="{if this.playIndex == index} color:red; {/if}">
+                <span class="playlist-title" data-event="play:{index}">
+                    {+index+1}、{item.singer} - {item.song}({item.click})
+                </span>
+                <div class="playlist-operation">
+                    {if this.editMode}
+                        <img class="playlist-img" src="./images/arrow-up.png" data-event="removeSong:{index}" title="删除" />
+                        {if this.songCount > 1}
+                            <img class="playlist-img" src="./images/arrow-up.png" data-event="goRise:{index}" title="上调" />
+                            <img class="playlist-img" src="./images/arrow-down.png" data-event="goDown:{index}" title="下调" />
+                        {/if}
+                        {this.cateType === 'mood'}
+                        <select data-event="change > changeMood: {item.songId}">
+                            <% let currentMood = item.mood || '其它'; %>
+                            {for mood in this.moodList}
+                            <option value="{mood.text}" {if currentMood === mood.text}selected="selected"{/if}>{mood.text}</option>
+                            {/for}
+                        </select>
+                        {/if}
+                        <img class="playlist-img" src="./images/update.png" data-event="resetSong:{index}" title="更新" />
+                    {/if}
+                </div>
+            </li>
+            {/for}
+        </ul>
+        <div class="clear"></div>
+    </div>
+</template>
+
+<script type="text/ecmascript-6">
+let service = require('./service');
+
+module.exports = {
+    $data: {
+        type: 'all',
+        cate: '',
+        cateList: [],
+        songList: [],
+        totalCount: 0,
+        editMode: false,
+        cateIndex: -1,
+        playIndex: -1
+    },
+    $computed: {
+        cateCount () {
+            return this.cateList.length;
+        },
+        current () {
+            return this.songList[this.playIndex];
+        },
+        songCount () {
+            return this.songList.length;
+        },
+        lastIndex () {
+            return this.songCount - 1;
+        }
+    },
+    $hooks: {
+
+    },
+    $methods: {
+        async getList () {
+            let params = {
+                type: this.type,
+                cate: this.cate
+            };
+            let rs = await service.getList(params);
+            this.parseList(rs);
+        },
+        parseList (rs) {
+            Object.keys(rs.data).forEach(key => {
+                this[key] = rs.data[key];
+            });
+            this.songCount > 0 && this.play(0);
+        },
+
+        // 开始播放
+        startPlay () {
+            this.getList();
+        },
+
+        // 播放
+        async play (index) {
+            if (index > -1) {
+                this.playIndex = index;
+            }else if (this.playIndex < 0){
+                throw 'index wrong';
+            }
+
+            let item = this.songList[this.playIndex];
+            let params = {
+                id: item.id,
+                type: this.type,
+                cate: this.cate
+            };
+            await service.addClick(params);
+
+            this.$parent.current = this.current;
+            this.$sibling('player').changeSong(this.current);
+            this.$sibling('lyric').updateSource(this.current);
+        },
+
+        // 上一首
+        goPrev () {
+            this.playIndex--;
+            if (this.playIndex < 0) {
+                this.playIndex = this.lastIndex;
+            }
+            this.play();
+        },
+
+        // 下一首
+        goNext () {
+            this.playIndex++;
+            if (this.playIndex > this.lastIndex) {
+                this.playIndex = 0;
+            }
+            this.play();
+        },
+
+        // 下一首
+        goMode (mode) {
+            if (mode === 'order') {
+                return this.goNext();
+            }
+            if (mode === 'one') {
+                return this.play(this.playIndex);
+            }
+            if (mode === 'random') {
+                let index =  Math.floor(Math.random() * this.lastIndex);
+                return this.play(index);
+            }
+        },
+
+        // 上升
+        goRise (index) {
+            var prevIndex = +index - 1;
+            if(prevIndex < 0){
+                prevIndex = this.lastIndex;
+            }
+            if(this.playIndex == index){
+                this.playIndex = prevIndex;
+            }
+            this.swap(index, prevIndex);
+        },
+
+        // 下调
+        goDown (index) {
+            var nextIndex = +index + 1;
+            if(nextIndex > this.lastIndex){
+                nextIndex = 0;
+            }
+            if(this.playIndex == index){
+                this.playIndex = nextIndex;
+            }
+            this.swap(index, nextIndex);
+        },
+
+        // 上下调换
+        swap (index, index2) {
+            var temp = this.songList[index];
+            this.songList[index] = this.songList[index2];
+            this.songList[index2] = temp;
+        },
+
+        // 重新爬取歌曲信息
+        resetSong (index) {
+            let item = this.songList[index];
+            this.$sibling('search').searchSong(`${item.singer} ${item.song}`);
+        },
+
+        // 删除歌曲
+        async removeSong (index) {
+            let item = this.songList[index];
+            let params = {
+                id: item.id,
+                type: this.type,
+                cate: this.cate
+            };
+            let rs = await service.delSong(params);
+            this.cateList = rs.data.cateList;
+            this.songList = rs.data.songList;
+            index == this.playIndex && this.songCount > 0 && this.play(0);
+        },
+
+        // 播放选中的歌曲
+        playSearchSong (data, songId) {
+            this.songList = data.songList;
+            let index = this.songList.findIndex(x => x.songId === songId);
+            this.play(index);
+        },
+
+        // 选择分类方式
+        chooseType () {
+            this.cate = '';
+            this.getList();
+        },
+
+        // 选择类别
+        chooseCate (cateIndex) {
+            this.cateIndex = cateIndex
+            this.cate = this.cateList[cateIndex].name;
+            this.getList();
+        },
+
+        // 修改心情
+        async changeMood (songId) {
+            let mood = this.element.value;
+            let rs = await service.setMood({songId, mood});
+            if (rs.success) {
+                this.parseList(rs.data);
+                this.chooseCate(mood);
+            }
+        }
+    }
+};
+</script>

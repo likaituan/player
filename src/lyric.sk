@@ -1,0 +1,101 @@
+<style>
+    .lyric {
+        position: relative;
+        height: 100%;
+        overflow: hidden;
+    }
+
+    .lyric .green{
+        color: green;
+    }
+
+    .lyric > ul {
+        position: absolute;
+        left: 0;
+        width: 100%;
+        padding: 0;
+        margin: 0;
+    }
+    .lyric > ul > li {
+        height: 40px;
+        line-height: 40px;
+        font-size: 15px;
+        list-style: none;
+        text-align: center;
+    }
+</style>
+
+
+<template>
+	<div class="lyric">
+        <ul style="top: {this.Top}px;">
+            {for (index,item) in this.list}
+            <li class="{this.index == index && 'green'}">{item.word}</li>
+            {/for}
+        </ul>
+    </div>
+</template>
+
+<script type="text/ecmascript-6">
+    let { ms2s } = require('ifun/time');
+    let service = require('./service');
+
+    let parseLyric = function (text, finishTime) {
+        let arr = [];
+        text.replace(/\[(\d+\:\d+\.\d+)\]([^\n]+)/g, (_, startTime, word) => {
+            startTime = ms2s(startTime);
+            word =  word.replace(/<\d+>/g, '');
+            arr.push({startTime, word});
+        });
+        arr.forEach((item, index) => {
+            let item2 = arr[index+1];
+            item.endTime = item2 ? item2.startTime : finishTime;
+            item.len = item.endTime - item.startTime;
+        });
+        return arr;
+    };
+
+    module.exports = {
+        $data: {
+            index: -1,
+            Top: 0,
+            lineHeight: 40,
+            midPos: 0,
+            list: [],
+            current: {}
+        },
+        $hooks: {
+            onRender () {
+                let boxHeight = this.ui.offsetHeight;
+                let rows = Math.floor(boxHeight / this.lineHeight);
+                if (rows % 2 === 0) {
+                    --rows;
+                }
+                let midRow = Math.ceil(rows / 2);
+                this.midPos = midRow * this.lineHeight;
+            }
+        },
+        $methods: {
+            // 更新歌词
+            async updateSource (item) {
+                this.current = item;
+                let params  = {
+                    file: item.lrc
+                };
+                let code = await service.getCode(params);
+                this.list = parseLyric(code, item.length || 0);
+                this.Top = this.midPos;
+            },
+
+            // 更新时间
+            updateTime (time) {
+                this.index = this.list.findIndex(item => item.startTime <= time && time < item.endTime);
+                if (this.index > 0) {
+                    let item = this.list[this.index];
+                    let linePercent = Math.floor((time - item.startTime) / item.len * this.lineHeight);
+                    this.Top = this.midPos - this.index * this.lineHeight - linePercent;
+                }
+            }
+        }
+    };
+</script>

@@ -1,8 +1,15 @@
 {
+  "name": "xplayer",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "start": "seekpack start port=2001",
+    "build": "seekpack build"
+  },
   "dependencies": {
-    "ifun": "latest",
-    "jquery": "latest",
-    "seekjs": "github:seekjs/sk2",
-    "seekjs-plugin-lyrics": "latest"
+    "ifun": "file:../ifun",
+    "seek-ajax": "file:../../seekjs/seek-ajax",
+    "seekjs": "file:../../seekjs/seekjs",
+    "seekpack": "file:../../seekjs/seekpack"
   }
 }

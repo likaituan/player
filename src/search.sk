@@ -1,0 +1,118 @@
+<style>
+    .search img {
+        cursor: pointer;
+    }
+
+    .search-bar > input{
+        box-sizing: border-box;
+        padding: 2px 10px;
+        width: calc(100% - 60px);
+        height: 24px;
+        border: 1px solid #333;
+        margin: 8px;
+        float: left;
+    }
+
+    .search-btn {
+        width: 32px;
+        height: 32px;
+        margin: 4px;
+        background: url("./images/search-btn.png") no-repeat;
+        border: 0;
+    }
+
+    .search table {
+        width: 100%;
+    }
+
+    .search tr {
+        height: 40px;
+    }
+
+    .search td {
+        width: 30%;
+        word-break: break-all;
+    }
+
+    .search td:first-child, .search td:last-child{
+        width: 10%;
+        word-break: break-all;
+    }
+
+    .search td:nth-child(2) {
+        width: 20%;
+        word-break: break-all;
+    }
+</style>
+
+
+<template>
+	<div class="search">
+        <div class="search-bar">
+            <input type="text" name="keyword" data-bind="keyword" data-enter="searchSong" placeholder="歌曲/歌手/专辑" />
+            <button class="search-btn" data-event="searchSong"></button>
+        </div>
+		{if this.searchList.length > 0}
+		<table>
+			<tr>
+				<th>序号</th>
+				<th>歌手</th>
+				<th>专辑</th>
+				<th>歌曲</th>
+				<th>添加</th>
+			</tr>
+			{for (index,item) in this.searchList}
+			<tr>
+				<td>{+index+1}</td>
+				<td>{item.singer}</td>
+				<td>{item.album}</td>
+				<td>{item.song}</td>
+				<td data-event="addSong:{item.songId}"><img src="./images/add.png" /></td>
+			</tr>
+			{/for}
+		</table>
+		{/if}
+	</div>
+</template>
+
+
+<script type="text/ecmascript-6">
+let service = require('./service');
+
+module.exports = {
+    $data: {
+        keyword: '',
+        searchList: []
+    },
+    $methods: {
+        // 查找歌曲
+        async searchSong (keyword) {
+            keyword = keyword || this.keyword;
+            console.log({keyword});
+            this.$parent.boxIndex = 3;
+            let rs = await service.search({keyword});
+            if (rs.success) {
+                this.searchList = rs.data;
+            }
+        },
+
+        // 选中歌曲
+        async addSong (songId) {
+            let view = this.$sibling('playlist');
+            let params = {
+                songId,
+                type: view.type,
+                cate: view.cate
+            };
+            let rs = await service.addSong(params);
+            if (rs.success) {
+                this.$parent.boxIndex = 2;
+                this.$sibling('playlist').playSearchSong(rs.data, songId);
+            }
+            else {
+                alert(rs.message);
+            }
+        }
+    }
+};
+</script>
