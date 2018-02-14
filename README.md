@@ -1,4 +1,4 @@
-# xpayer 播放器
+# xplayer 播放器
 
 ### 安装:
 > npm i
